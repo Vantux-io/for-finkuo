@@ -10,7 +10,6 @@ class ProfileUpdateForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        # Add custom validation logic here if needed
         return cleaned_data
     
 
