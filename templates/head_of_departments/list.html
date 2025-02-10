@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+
+{% block title %}  School CRM - Head of Department List {% endblock %}
+
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Head of Department</h1>
+    <div class="flex items-center space-x-4">
+        <div>
+            <form method="get" action="{% url 'head_of_departments:list' %}" id="searchForm" class="relative">
+                <button type="submit">
+                    <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500"></i>
+                </button>
+
+                <input type="text" name="search" placeholder="Search head of departments..."
+                    class="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    value="{{ request.GET.search|default:'' }}">
+            </form>
+        </div>
+        <a href="{% url 'head_of_departments:create' %}"
+           class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            <i class="bi bi-plus"></i>
+            <span>Add Head of Department</span>
+        </a>
+    </div>
+</div>
+<div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+    <div class="flex flex-wrap gap-4">
+        <form method="get" action="{% url 'head_of_departments:list' %}" id="filterForm">
+            <select name="status" class="border rounded-lg px-4 py-2" onchange="document.getElementById('filterForm').submit();">
+                <option value="">Status</option>
+                <option value="ac" {% if request.GET.status == 'ac' %}selected{% endif %}>Active</option>
+                <option value="in" {% if request.GET.status == 'in' %}selected{% endif %}>Inactive</option>
+                <option value="pd" {% if request.GET.status == 'pd' %}selected{% endif %}>Pending</option>
+            </select>
+            <a href="{% url 'head_of_departments:list' %}" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">
+                Clear Filters
+            </a>
+        </form>
+    </div>
+</div>
+<!-- Subjects Table -->
+{% if heads %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <span>Head  Name</span>
+                        <i class="bi bi-arrow-down-up"></i>
+                    </div>
+                </th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Department</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Actions</th>
+            </tr>
+            </thead>
+            {% for head in heads %}
+            <tbody class="divide-y">
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
+                            <i class="bi bi-book text-orange-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">{{ head.name }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm">{{ head.departments.count }} Department</td>
+                <td class="px-6 py-4">
+                    {% if head.status == 'ac' %}
+                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                                {{ head.get_status_display }}
+                                            </span>
+                    {% elif head.status == 'in' %}
+                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                                                {{ head.get_status_display }}
+                                            </span>
+                    {% elif head.status == 'pd' %}
+                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                                {{ head.get_status_display }}
+                                            </span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+    <div class="flex items-center space-x-3">
+        <!-- Detail Button -->
+        <a href="{% url 'head_of_departments:detail' head.pk %}" class="text-blue-600 hover:text-blue-800">
+            <i class="bi bi-eye"></i>
+        </a>
+
+        {% if user == head.author %}
+            <a href="{{ head.get_update_url }}" class="text-gray-600 hover:text-gray-800">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{{ head.get_delete_url }}" class="text-red-600 hover:text-red-800">
+                <i class="bi bi-trash"></i>
+            </a>
+        {% endif %}
+    </div>
+</td>
+
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="px-6 py-4 border-t">
+    <div class="flex justify-between items-center">
+        <p class="text-sm text-gray-600">
+            Showing {{ heads.start_index }} to {{ heads.end_index }} of {{ heads.paginator.count }} heads
+        </p>
+
+        <div class="flex space-x-2">
+            {% if heads.has_previous %}
+                <a href="?page=1" class="px-3 py-1 border rounded hover:bg-gray-50">First</a>
+                <a href="?page={{ heads.previous_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Previous</a>
+            {% endif %}
+
+            {% for num in heads.paginator.page_range %}
+                {% if num == heads.number %}
+                    <span class="px-3 py-1 border rounded bg-blue-600 text-white">{{ num }}</span>
+                {% elif num > heads.number|add:"-3" and num < heads.number|add:"3" %}
+                    <a href="?page={{ num }}" class="px-3 py-1 border rounded hover:bg-gray-50">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if heads.has_next %}
+                <a href="?page={{ heads.next_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-50">Next</a>
+                <a href="?page={{ heads.paginator.num_pages }}" class="px-3 py-1 border rounded hover:bg-gray-50">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</div>
+{% else %}
+    <h3>No added Head of Department</h3>
+{% endif %}
+{% endblock %}

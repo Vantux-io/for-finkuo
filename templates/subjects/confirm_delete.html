@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete - School CRM{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card confirm-card">
+                <div class="card-header">
+                    <i class="bi bi-exclamation-triangle icon-warning"></i>
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="card-title mb-4">Are you sure?</h3>
+                    <p class="card-text mb-5">You are about to delete this item. This action cannot be undone and may have serious consequences.</p>
+
+                    <form method="post" action="{{ subject.get_delete_url }}">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-danger me-4 px-5 py-2">Delete</button>
+                            <button type="button" class="btn btn-secondary px-5 py-2">
+                                <a href="{% url 'subjects:list' %}" class="text-decoration-none text-white">Cancel</a>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
